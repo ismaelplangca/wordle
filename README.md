@@ -1,2 +1,2 @@
 # wordle
-Wordle clone written java
+Wordle clone written in java
