@@ -373,6 +373,7 @@ class TextWindow extends JTextArea {
 class Dictionary {
     private ArrayList<String> valid;
     private final String[] allowable;
+    private Random rd = new Random();
 
     public Dictionary() {
         valid = arrListLoad("valid.txt");
@@ -385,7 +386,12 @@ class Dictionary {
 
     // Get a valid random word
     public String getWordle() {
-        return valid.get(new Random().nextInt(0, valid.size() ) );
+        try {
+            return valid.get(rd.nextInt(0, valid.size() ) );
+        } catch(Exception e) {
+            resetValid();
+            return valid.get(rd.nextInt(0, valid.size() ) );
+        }
     }
 
     public void resetValid() {
