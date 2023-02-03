@@ -12,7 +12,7 @@ public class Wordle {
     private static final int WIN_WIDTH = 600;
     private static final int WIN_HEIGHT = 600;
     public static void wordle() {
-        Window wd = new Window(WIN_WIDTH, WIN_HEIGHT, "20466014 Wordle");
+        Window wd = new Window(WIN_WIDTH, WIN_HEIGHT, "Java Wordle");
         wd.run(30);
     }
 }
@@ -72,11 +72,39 @@ class Window {
         wordle = words.getWordle();
         board.repaint();
         for(JButton button : keyboard.buttons)
-            button.setBackground(board.colors[5]);
+            button.setBackground(Colour.BUTTON_GRAY.getColor() );
         guesses.setText("");
     }
 }
-
+enum Colour {
+    BLACK_EMPTY, GREEN, YELLOW, BLACK, WHITE, BUTTON_GRAY;
+    private final Color[] colours = {
+            new Color(18,18,19),    // BLACK_EMPTY 0
+            new Color(83,141,78),   // GREEN 1
+            new Color(181,159,59),  // YELLOW 2
+            new Color(58,58,60),    // BLACK 3
+            new Color(215,218,220), // WHITE 4
+            new Color(129,131,132)  // BUTTON_GRAY 5
+    };
+    public Color getColor() {
+        switch(this) {
+            case BLACK_EMPTY :
+                return colours[0];
+            case GREEN :
+                return colours[1];
+            case YELLOW :
+                return colours[2];
+            case BLACK :
+                return colours[3];
+            case WHITE :
+                return colours[4];
+            case BUTTON_GRAY :
+                return colours[5];
+            default :
+                return null;
+        }
+    }
+}
 class Board extends Canvas {
     public char[][] array = new char[6][5];
     public Stack<Character> currAttempt = new Stack<>();
@@ -85,14 +113,6 @@ class Board extends Canvas {
     private final Window main;
     // acts as y-axis in evaluations
     int attempts = 0;
-    public final Color[] colors = {
-            new Color(18,18,19),    // BLACK_EMPTY 0
-            new Color(83,141,78),   // GREEN 1
-            new Color(181,159,59),  // YELLOW 2
-            new Color(58,58,60),    // BLACK 3
-            new Color(215,218,220), // WHITE 4
-            new Color(129,131,132)  // BUTTON_GRAY 5
-    };
     public Board(Window mainIn) {
         main = mainIn;
         setSize(420, 420);
@@ -118,7 +138,7 @@ class Board extends Canvas {
         graphics.setFont(new Font("Nueue Helvetica 75", Font.PLAIN, 30) );
 
         // Draw grid
-        graphics.setColor(colors[3]);
+        graphics.setColor(Colour.BLACK.getColor() );
         for(int lines = 0; lines < 7; lines++) {
             graphics.drawLine(lines*84,0,lines*84,420);
             graphics.drawLine(0,lines*70,420,lines*70);
@@ -148,22 +168,22 @@ class Board extends Canvas {
     // 0 = BLACK_EMPTY, 1 = GREEN, 2 = YELLOW, 3 = BLACK
     private void setTileColors(Graphics graphics, int x, int y) {
         switch (tileColors[y][x]) {
-            case 0 -> {
-                graphics.setColor(colors[0]);
+            case 0:
+                graphics.setColor(Colour.BLACK_EMPTY.getColor() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-            }
-            case 1 -> {
-                graphics.setColor(colors[1]);
+                break;
+            case 1:
+                graphics.setColor(Colour.GREEN.getColor() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-            }
-            case 2 -> {
-                graphics.setColor(colors[2]);
+                break;
+            case 2:
+                graphics.setColor(Colour.YELLOW.getColor() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-            }
-            case 3 -> {
-                graphics.setColor(colors[3]);
+                break;
+            case 3:
+                graphics.setColor(Colour.BLACK.getColor() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-            }
+                break;
         }
     }
 
@@ -272,7 +292,7 @@ class Keyboard extends Panel implements ActionListener {
         main = mainIn;
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         setLayout(new GridBagLayout() );
-        setBackground(main.board.colors[3]);
+        setBackground(Colour.BLACK.getColor() );
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         for(int i = 0; i < 3; i++) {
@@ -280,19 +300,19 @@ class Keyboard extends Panel implements ActionListener {
             for(int j = 0, len = rows[i].length(); j < len; j++) {
                 c.gridx = j;
                 add(buttons[index++] =
-                        addButton(rows[i].substring(j, j+1), main.board.colors[5], main.board.colors[4]),
+                        addButton(rows[i].substring(j, j+1), Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ),
                         c
                 );
             }
         }
         c.gridx++;
-        add(buttons[index++] = addButton("Delete", main.board.colors[5], main.board.colors[4]), c);
+        add(buttons[index++] = addButton("Delete", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
         c.gridx++;
-        add(buttons[index++] = addButton("Clear", main.board.colors[5], main.board.colors[4]), c);
+        add(buttons[index++] = addButton("Clear", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
         c.gridx++;
-        add(buttons[index++] = addButton("Enter", main.board.colors[5], main.board.colors[4]), c);
+        add(buttons[index++] = addButton("Enter", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
         c.gridy = 1;
-        add(buttons[index]   = addButton("Restart", main.board.colors[5], main.board.colors[4]), c);
+        add(buttons[index]   = addButton("Restart", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
     }
     private JButton addButton(String text, Color background, Color foreground) {
         JButton button = new JButton(text);
@@ -307,14 +327,18 @@ class Keyboard extends Panel implements ActionListener {
                 JButton button = buttons[j];
                 if(input.charAt(i) == button.getText().charAt(0) ) {
                     // 0 = gray, 1 = green, 2 = yellow, 3 = black
-                    switch(tileColor[i]) {
-                        // case 0 -> button.setBackground(main.board.colors[0]);
-                        case 1 -> button.setBackground(main.board.colors[1]);
-                        case 2 -> {
-                            if(button.getBackground() != main.board.colors[1])
-                                button.setBackground(main.board.colors[2]);
-                        }
-                        case 3 -> button.setBackground(main.board.colors[3]);
+                    // case 0 -> button.setBackground(main.board.colors[0]);
+                    switch (tileColor[i]) {
+                        case 1:
+                            button.setBackground(Colour.GREEN.getColor() );
+                            break;
+                        case 2:
+                            if (button.getBackground() != Colour.GREEN.getColor() )
+                                button.setBackground(Colour.YELLOW.getColor() );
+                            break;
+                        case 3:
+                            button.setBackground(Colour.BLACK.getColor() );
+                            break;
                     }
                 }
             }
@@ -373,11 +397,11 @@ class TextWindow extends JTextArea {
 class Dictionary {
     private ArrayList<String> valid;
     private final String[] allowable;
-    private Random rd = new Random();
+    private final Random rd = new Random();
 
     public Dictionary() {
-        valid = arrListLoad("valid.txt");
-        allowable = load("allowable.txt");
+        valid = arrListLoad("text-files/valid.txt");
+        allowable = load("text-files/allowable.txt");
     }
 
     public int getAllowableSize() {
@@ -395,7 +419,7 @@ class Dictionary {
     }
 
     public void resetValid() {
-        valid = arrListLoad("valid.txt");
+        valid = arrListLoad("text-files/valid.txt");
     }
 
     public String[] load(String file) {
