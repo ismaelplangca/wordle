@@ -2,9 +2,9 @@ package WordleLabs;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,6 +15,7 @@ public class Wordle {
         Window wd = new Window(WIN_WIDTH, WIN_HEIGHT, "Java Wordle");
         wd.run(30);
     }
+    public static void run() { }
 }
 
 class Window {
@@ -48,7 +49,7 @@ class Window {
         windowFrame.getContentPane().setBackground(Color.BLACK);
         windowFrame.setVisible(true);
     }
-
+    public void run() { }
     public void run(int n) {
         int gamesRun = 0;
         while(gamesRun != n) {
@@ -72,7 +73,7 @@ class Window {
         wordle = words.getWordle();
         board.repaint();
         for(JButton button : keyboard.buttons)
-            button.setBackground(Colour.BUTTON_GRAY.getColor() );
+            button.setBackground(Colour.BUTTON_GRAY.getColour() );
         guesses.setText("");
     }
 }
@@ -86,7 +87,7 @@ enum Colour {
             new Color(215,218,220), // WHITE 4
             new Color(129,131,132)  // BUTTON_GRAY 5
     };
-    public Color getColor() {
+    public Color getColour() {
         switch(this) {
             case BLACK_EMPTY :
                 return colours[0];
@@ -138,7 +139,7 @@ class Board extends Canvas {
         graphics.setFont(new Font("Nueue Helvetica 75", Font.PLAIN, 30) );
 
         // Draw grid
-        graphics.setColor(Colour.BLACK.getColor() );
+        graphics.setColor(Colour.BLACK.getColour() );
         for(int lines = 0; lines < 7; lines++) {
             graphics.drawLine(lines*84,0,lines*84,420);
             graphics.drawLine(0,lines*70,420,lines*70);
@@ -169,19 +170,19 @@ class Board extends Canvas {
     private void setTileColors(Graphics graphics, int x, int y) {
         switch (tileColors[y][x]) {
             case 0:
-                graphics.setColor(Colour.BLACK_EMPTY.getColor() );
+                graphics.setColor(Colour.BLACK_EMPTY.getColour() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
                 break;
             case 1:
-                graphics.setColor(Colour.GREEN.getColor() );
+                graphics.setColor(Colour.GREEN.getColour() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
                 break;
             case 2:
-                graphics.setColor(Colour.YELLOW.getColor() );
+                graphics.setColor(Colour.YELLOW.getColour() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
                 break;
             case 3:
-                graphics.setColor(Colour.BLACK.getColor() );
+                graphics.setColor(Colour.BLACK.getColour() );
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
                 break;
         }
@@ -194,9 +195,7 @@ class Board extends Canvas {
             return;
         }
 
-        String input = "";
-        for(char c : currAttempt)
-            input += c;
+        var input = currAttempt.toString();
 
         if(!main.words.wordSearch(input,0,main.words.getAllowableSize()-1) ) {
             JOptionPane.showMessageDialog(this,
@@ -292,7 +291,7 @@ class Keyboard extends Panel implements ActionListener {
         main = mainIn;
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         setLayout(new GridBagLayout() );
-        setBackground(Colour.BLACK.getColor() );
+        setBackground(Colour.BLACK.getColour() );
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         for(int i = 0; i < 3; i++) {
@@ -300,19 +299,19 @@ class Keyboard extends Panel implements ActionListener {
             for(int j = 0, len = rows[i].length(); j < len; j++) {
                 c.gridx = j;
                 add(buttons[index++] =
-                        addButton(rows[i].substring(j, j+1), Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ),
+                        addButton(rows[i].substring(j, j+1), Colour.BUTTON_GRAY.getColour(), Colour.WHITE.getColour() ),
                         c
                 );
             }
         }
         c.gridx++;
-        add(buttons[index++] = addButton("Delete", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
+        add(buttons[index++] = addButton("Delete", Colour.BUTTON_GRAY.getColour(), Colour.WHITE.getColour() ), c);
         c.gridx++;
-        add(buttons[index++] = addButton("Clear", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
+        add(buttons[index++] = addButton("Clear", Colour.BUTTON_GRAY.getColour(), Colour.WHITE.getColour() ), c);
         c.gridx++;
-        add(buttons[index++] = addButton("Enter", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
+        add(buttons[index++] = addButton("Enter", Colour.BUTTON_GRAY.getColour(), Colour.WHITE.getColour() ), c);
         c.gridy = 1;
-        add(buttons[index]   = addButton("Restart", Colour.BUTTON_GRAY.getColor(), Colour.WHITE.getColor() ), c);
+        add(buttons[index]   = addButton("Restart", Colour.BUTTON_GRAY.getColour(), Colour.WHITE.getColour() ), c);
     }
     private JButton addButton(String text, Color background, Color foreground) {
         JButton button = new JButton(text);
@@ -330,14 +329,14 @@ class Keyboard extends Panel implements ActionListener {
                     // case 0 -> button.setBackground(main.board.colors[0]);
                     switch (tileColor[i]) {
                         case 1:
-                            button.setBackground(Colour.GREEN.getColor() );
+                            button.setBackground(Colour.GREEN.getColour() );
                             break;
                         case 2:
-                            if (button.getBackground() != Colour.GREEN.getColor() )
-                                button.setBackground(Colour.YELLOW.getColor() );
+                            if (button.getBackground() != Colour.GREEN.getColour() )
+                                button.setBackground(Colour.YELLOW.getColour() );
                             break;
                         case 3:
-                            button.setBackground(Colour.BLACK.getColor() );
+                            button.setBackground(Colour.BLACK.getColour() );
                             break;
                     }
                 }
@@ -423,40 +422,19 @@ class Dictionary {
     }
 
     public String[] load(String file) {
-        StringBuilder contents = new StringBuilder();
-        BufferedReader input = null;
-        try {
-            input = new BufferedReader(new FileReader(file) );
-            String line;
-            while((line = input.readLine() ) != null)
-                contents.append(line).append(System.getProperty("line.separator") );
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if(input != null)
-                    input.close();
-            } catch (IOException ex){
-                System.out.println("Input output exception while processing file");
-                ex.printStackTrace();
-            }
+        try(var lines = Files.lines(Path.of(file) ) ) {
+            return lines.map(line -> line.toUpperCase().trim() ).toArray(String[]::new);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        String[] arr = contents.toString().split("\n");
-        for(int i = 0, len = arr.length; i < len; i++)
-            arr[i] = arr[i].toUpperCase().trim();
-        return arr;
     }
 
     public ArrayList<String> arrListLoad(String file) {
-        ArrayList<String> arr = new ArrayList<>();
-        try {
-            arr = new BufferedReader(new FileReader(file) )
-                    .lines()
-                    .collect(Collectors.toCollection(ArrayList::new) );
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        try(var lines = Files.lines(Path.of(file) ) ) {
+            return lines.collect(Collectors.toCollection(ArrayList::new) );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return arr;
     }
 
     public boolean wordSearch(String target, int l, int r) {
@@ -480,7 +458,7 @@ class Dictionary {
                     alphSet.add(c);
                     for(Iterator<String> itr = valid.iterator(); itr.hasNext(); ) {
                         String word = itr.next();
-                        if (word.charAt(i) != c) // == c for yellows
+                        if(word.charAt(i) != c) // == c for yellows
                             itr.remove();
                     }
                     break;
