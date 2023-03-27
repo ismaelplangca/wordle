@@ -69,6 +69,7 @@ class Window {
                 board.tileColors[i][j] = 0;
             }
         }
+        words.usedChars.clear();
         words.resetValid();
         wordle = words.getWordle();
         board.repaint();
@@ -88,22 +89,14 @@ enum Colour {
             new Color(129,131,132)  // BUTTON_GRAY 5
     };
     public Color getColour() {
-        switch(this) {
-            case BLACK_EMPTY :
-                return colours[0];
-            case GREEN :
-                return colours[1];
-            case YELLOW :
-                return colours[2];
-            case BLACK :
-                return colours[3];
-            case WHITE :
-                return colours[4];
-            case BUTTON_GRAY :
-                return colours[5];
-            default :
-                return null;
-        }
+        return switch(this) {
+            case BLACK_EMPTY -> colours[0];
+            case GREEN -> colours[1];
+            case YELLOW -> colours[2];
+            case BLACK -> colours[3];
+            case WHITE -> colours[4];
+            case BUTTON_GRAY -> colours[5];
+        };
     }
 }
 class Board extends Canvas {
@@ -168,23 +161,23 @@ class Board extends Canvas {
 
     // 0 = BLACK_EMPTY, 1 = GREEN, 2 = YELLOW, 3 = BLACK
     private void setTileColors(Graphics graphics, int x, int y) {
-        switch (tileColors[y][x]) {
-            case 0:
-                graphics.setColor(Colour.BLACK_EMPTY.getColour() );
+        switch(tileColors[y][x]) {
+            case 0 -> {
+                graphics.setColor(Colour.BLACK_EMPTY.getColour());
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-                break;
-            case 1:
-                graphics.setColor(Colour.GREEN.getColour() );
+            }
+            case 1 -> {
+                graphics.setColor(Colour.GREEN.getColour());
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-                break;
-            case 2:
-                graphics.setColor(Colour.YELLOW.getColour() );
+            }
+            case 2 -> {
+                graphics.setColor(Colour.YELLOW.getColour());
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-                break;
-            case 3:
-                graphics.setColor(Colour.BLACK.getColour() );
+            }
+            case 3 -> {
+                graphics.setColor(Colour.BLACK.getColour());
                 graphics.fillRect(x * 84 + 1, y * 70 + 1, 83, 69);
-                break;
+            }
         }
     }
 
@@ -195,7 +188,7 @@ class Board extends Canvas {
             return;
         }
 
-        var input = currAttempt.toString();
+        String input = currAttempt.toString();
 
         if(!main.words.wordSearch(input,0,main.words.getAllowableSize()-1) ) {
             JOptionPane.showMessageDialog(this,
@@ -327,17 +320,13 @@ class Keyboard extends Panel implements ActionListener {
                 if(input.charAt(i) == button.getText().charAt(0) ) {
                     // 0 = gray, 1 = green, 2 = yellow, 3 = black
                     // case 0 -> button.setBackground(main.board.colors[0]);
-                    switch (tileColor[i]) {
-                        case 1:
-                            button.setBackground(Colour.GREEN.getColour() );
-                            break;
-                        case 2:
-                            if (button.getBackground() != Colour.GREEN.getColour() )
+                    switch(tileColor[i]) {
+                        case 1 -> button.setBackground(Colour.GREEN.getColour() );
+                        case 2 -> {
+                            if(button.getBackground() != Colour.GREEN.getColour() )
                                 button.setBackground(Colour.YELLOW.getColour() );
-                            break;
-                        case 3:
-                            button.setBackground(Colour.BLACK.getColour() );
-                            break;
+                        }
+                        case 3 -> button.setBackground(Colour.BLACK.getColour() );
                     }
                 }
             }
@@ -396,11 +385,13 @@ class TextWindow extends JTextArea {
 class Dictionary {
     private ArrayList<String> valid;
     private final String[] allowable;
+    protected HashSet<Character> usedChars;
     private final Random rd = new Random();
 
     public Dictionary() {
         valid = arrListLoad("text-files/valid.txt");
         allowable = load("text-files/allowable.txt");
+        usedChars = new HashSet<>(26);
     }
 
     public int getAllowableSize() {
@@ -450,30 +441,29 @@ class Dictionary {
 
     // 0 = BLACK_EMPTY, 1 = GREEN, 2 = YELLOW, 3 = BLACK
     public void filterWords(String input, int[] tileColors) {
-        HashSet<Character> alphSet = new HashSet<>();
         for(int i = 0; i < 5; i++) {
             char c = input.charAt(i);
             switch(tileColors[i]) {
-                case 1 :
-                    alphSet.add(c);
+                case 1 -> {
+                    usedChars.add(c);
                     for(Iterator<String> itr = valid.iterator(); itr.hasNext(); ) {
                         String word = itr.next();
-                        if(word.charAt(i) != c) // == c for yellows
+                        if (word.charAt(i) != c) // == c for yellows
                             itr.remove();
                     }
-                    break;
-                case 2 :
-                    alphSet.add(c);
-                    for(Iterator<String> itr = valid.iterator(); itr.hasNext(); ) {
+                }
+                case 2 -> {
+                    usedChars.add(c);
+                    for (Iterator<String> itr = valid.iterator(); itr.hasNext(); ) {
                         String word = itr.next();
-                        if(word.charAt(i) == c || !word.contains(String.valueOf(c) ) )
+                        if (word.charAt(i) == c || !word.contains(String.valueOf(c) ) )
                             itr.remove();
                     }
-                    break;
-                case 3 :
-                    if(!alphSet.contains(c) )
+                }
+                case 3 -> {
+                    if(!usedChars.contains(c) )
                         valid.removeIf(word -> word.contains(String.valueOf(c) ) );
-                    break;
+                }
             }
         }
     }
